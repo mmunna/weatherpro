@@ -12,7 +12,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.amunna.weatherpro</groupId>
-    <artifactId>weatherpro-datacprocessor</artifactId>
+    <artifactId>weatherpro-dataprocessor</artifactId>
 
     <properties>
         <exec.Xms>512m</exec.Xms>
