@@ -1,0 +1,13 @@
+serviceName: dataprocessor
+
+http:
+  port: 9080
+  adminPort: 9081
+
+dataProcessInterval: 10 # hours or minutes
+
+hbaseConfiguration:
+    srcTable: yahooweatherdata
+    srcColumnFamily: temperature
+    destTable: yahooweathercompiled
+    destColumnFamily: temperature
