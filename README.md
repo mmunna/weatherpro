@@ -22,4 +22,29 @@ scalable, fault tolerant perfect distributed system. :-).
 
 Good Luck !!!
 
+How to build
+=============
+
+From top directory run
+
+mvn clean install
+
+How to run
+============
+
+1. Data Collector:
+
+cd datacollector
+mvn -Prun
+
+2. Data Processor:
+
+cd dataprocessor
+mvn -Prun
+
+3. Service
+
+cd service
+mvn -Prun
+
 
