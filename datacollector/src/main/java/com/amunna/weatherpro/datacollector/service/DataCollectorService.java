@@ -34,7 +34,7 @@ public class DataCollectorService extends Service<DataCollectorConfiguration> {
         Injector injector = Guice.createInjector(dataCollectorModule);
 
         //managers
-        environment.manage(injector.getInstance(ZipcodeCollectManager.class));
+        //environment.manage(injector.getInstance(ZipcodeCollectManager.class));
         environment.manage(injector.getInstance(DataCollectManager.class));
 
         //resources

@@ -38,4 +38,18 @@ public class DataCollectClient {
             throw Throwables.propagate(e);
         }
     }
+
+    public String getStateNameForZipCode(String zipCode) {
+        try {
+            final URI uri = baseUrl.clone()
+                    .segment("weather","statename")
+                    .queryParam("z", zipCode)
+                    .build();
+
+            return jerseyClient.resource(uri)
+                    .get(String.class);
+        } catch (UniformInterfaceException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 }

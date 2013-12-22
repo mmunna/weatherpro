@@ -54,7 +54,8 @@ public class DataCollect extends Task {
             logger.info(".... highTemp {}", weatherData.get("high"));
             logger.info(".... text {}", weatherData.get("text"));
             logger.info(".... processed {} woeid", ++counter);
-            weatherData.put("woeid", woeid);
+            //weatherData.put("woeid", woeid);
+            weatherData.put("zipCode", zipcodeCollectManager.zipCodeForWoeId(woeid));
             allWoeidData.add(weatherData);
         }
 

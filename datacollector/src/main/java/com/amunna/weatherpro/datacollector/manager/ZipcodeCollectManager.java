@@ -10,6 +10,7 @@ import com.yammer.dropwizard.lifecycle.Managed;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +19,15 @@ import java.util.Map;
 public final class ZipcodeCollectManager implements Managed {
 
     @Inject private DataCollectorConfiguration dataCollectorConfiguration;
+
     private final Map<String/*zipCode*/,String/*woeid*/> zipCodeWoeIDMap = Maps.newHashMap();
+    private final Map<String/*zipCode*/,String/*state*/> zipCodeStateNameMap = Maps.newHashMap();
     private final List<String/*woeid*/> woeidList = Lists.newArrayList();
+    private final Map<String/*woeId*/, String/*zipCode*/> woeIDZipCodeMap = Maps.newHashMap();
 
 
     public void start() throws Exception {
-        readFile();
+        //readFile();
     }
 
     public void stop() throws Exception {}
@@ -36,15 +40,22 @@ public final class ZipcodeCollectManager implements Managed {
         return zipCodeWoeIDMap.get(zipCode);
     }
 
-    private void readFile() {
+    public String zipCodeForWoeId(String woeID) {
+        return woeIDZipCodeMap.get(woeID);
+    }
+
+    // ex. TX, 78729, 1242223
+    public void uploadZipCodeWoeID(InputStream in) {
         BufferedReader br = null;
         try {
             String line;
-            br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/"+dataCollectorConfiguration.getZipwoeidsrc())));
+            br = new BufferedReader(new InputStreamReader(in));
             while ((line = br.readLine()) != null) {
                 String tokens[] = line.split(",");
-                zipCodeWoeIDMap.put(tokens[0],tokens[1]);
-                woeidList.add(tokens[1]);
+                zipCodeStateNameMap.put(tokens[1], tokens[0]);
+                zipCodeWoeIDMap.put(tokens[1],tokens[2]);
+                woeidList.add(tokens[2]);
+                woeIDZipCodeMap.put(tokens[2],tokens[1]);
             }
         } catch (IOException e) {
             Throwables.propagate(e);
@@ -56,4 +67,9 @@ public final class ZipcodeCollectManager implements Managed {
             }
         }
     }
+
+    public String getStateNameForZipCode(String woeID) {
+        return zipCodeStateNameMap.get(woeID);
+    }
+
 }

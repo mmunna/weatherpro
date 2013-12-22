@@ -5,7 +5,7 @@ dataCollectHost:
   port: 8090
 
 targetData:
-  targetTable: yahooweathercompiled
+  targetTable: avgtest1
   targetColumnFamily: temperature
 
 http:

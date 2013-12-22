@@ -28,7 +28,7 @@ httpClient:
 dataCollectInterval: 30 # hours or minutes
 
 hbaseConfiguration:
-    table: yahooweatherdata
+    table: rawtest1
     columnFamily: temperature
 
 zipwoeidsrc: zipcode_woeid.txt

@@ -4,10 +4,33 @@ http:
   port: 9080
   adminPort: 9081
 
-dataProcessInterval: 10 # hours or minutes
+dataProcessInterval: 2 # hours or minutes
+
+dataCollectHost:
+  host: localhost
+  port: 8090
 
 hbaseConfiguration:
-    srcTable: yahooweatherdata
+    srcTable: rawtest1
     srcColumnFamily: temperature
-    destTable: yahooweathercompiled
+    destTable: avgtest1
     destColumnFamily: temperature
+
+# Configure of the http client to make outbound requests.
+httpClient:
+  # Re-use connections so we don't run out of ports if many requests are made in rapid succession.
+  keepAlive: 1s
+  # Timeout after 1 second while connecting.
+  connectionTimeout: 30s
+  # Timeout after 10 seconds while reading or writing.
+  timeout: 30s
+  # Keep connections open for 10 minutes.
+  timeToLive: 10m
+  # Don't track cookies.
+  cookiesEnabled: false
+    # Most responses are small and not worth compressing.  Reduce CPU.
+  gzipEnabled: false
+  gzipEnabledForRequests: false
+  # Thread pool for JerseyClient's async requests.
+  minThreads: 1
+  maxThreads: 128

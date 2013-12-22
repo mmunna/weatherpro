@@ -1,5 +1,7 @@
 package com.amunna.weatherpro.dataprocessor.dataprocess;
 
+import com.amunna.weatherpro.dataprocessor.datacollect.DataCollectClient;
+import com.amunna.weatherpro.dataprocessor.dataprocess.datasplit.SimpleTableSplitter;
 import com.amunna.weatherpro.dataprocessor.service.config.DataProcessorConfiguration;
 import com.amunna.weatherpro.datastore.SimpleDataStore;
 import com.google.common.base.Throwables;
@@ -18,14 +20,18 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 @Singleton
 public final class WeatherDataProcessor implements DataProcessor {
+    private static final Logger logger = LoggerFactory.getLogger("WeatherDataProcessor.class");
 
     private final SimpleDataStore simpleDataStore;
     private final DataProcessorConfiguration dataProcessorConfiguration;
+    private final DataCollectClient dataCollectClient;
 
     private static String srcCF;
     private static String destCF;
@@ -33,9 +39,11 @@ public final class WeatherDataProcessor implements DataProcessor {
 
     @Inject
     public WeatherDataProcessor(SimpleDataStore simpleDataStore,
-                               DataProcessorConfiguration dataProcessorConfiguration) {
+                               DataProcessorConfiguration dataProcessorConfiguration,
+                               DataCollectClient dataCollectClient) {
         this.simpleDataStore = simpleDataStore;
         this.dataProcessorConfiguration = dataProcessorConfiguration;
+        this.dataCollectClient = dataCollectClient;
         this.srcCF = dataProcessorConfiguration.gethBaseConfiguration().getSrcColumnFamily();
         this.destCF = dataProcessorConfiguration.gethBaseConfiguration().getDestColumnFamily();
     }
@@ -60,12 +68,16 @@ public final class WeatherDataProcessor implements DataProcessor {
                     WeatherMapper.class,     // mapper class
                     Text.class,         // mapper output key
                     IntWritable.class,  // mapper output value
-                    job);
+                    job,
+                    true,
+                    SimpleTableSplitter.class);
+
+
             TableMapReduceUtil.initTableReducerJob(
                     dataProcessorConfiguration.gethBaseConfiguration().getDestTable(),        // output table
                     WeatherReducer.class,    // reducer class
                     job);
-            job.setNumReduceTasks(1);   // at least one, adjust as required
+            job.setNumReduceTasks(5);   // at least one, adjust as required
 
             boolean b = job.waitForCompletion(true);
             if (!b) {
@@ -84,8 +96,12 @@ public final class WeatherDataProcessor implements DataProcessor {
             final int low = Integer.parseInt(new String(value.getValue(Bytes.toBytes(srcCF), Bytes.toBytes("low"))).toString());
             final int high = Integer.parseInt(new String(value.getValue(Bytes.toBytes(srcCF), Bytes.toBytes("high"))).toString());
             final int total = low+high;
-            text.set("texas");
-            context.write(text, new IntWritable(total));
+            try {
+                text.set(DataCollectClient.getStateNameForZipCode(Bytes.toString(row.get())));
+                context.write(text, new IntWritable(total));
+            } catch (Exception e ) {
+                logger.error("error occurred while getting statename for woeid");
+            }
         }
     }
 
@@ -104,7 +120,4 @@ public final class WeatherDataProcessor implements DataProcessor {
             context.write(null, put);
         }
     }
-
-
-
 }

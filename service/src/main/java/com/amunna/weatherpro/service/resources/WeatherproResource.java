@@ -1,6 +1,7 @@
 package com.amunna.weatherpro.service.resources;
 
 import com.amunna.weatherpro.service.config.WeatherproConfiguration;
+import com.google.common.base.Throwables;
 import com.google.inject.Inject;
 import com.yammer.metrics.annotation.Timed;
 import org.slf4j.Logger;
@@ -24,7 +25,13 @@ public class WeatherproResource {
     @GET
     @Timed(group = "amunna.weather", type = "WeatherproResource")
     public String getWeather(@QueryParam("zipcode") @DefaultValue("0000") String zipCode) {
-        return weatherDataAggregator.getWeatherData(zipCode);
+        String weatherData = null;
+        try {
+            weatherData = weatherDataAggregator.getWeatherData(zipCode);
+        } catch (Exception e) {
+            Throwables.propagate(e);
+        }
+        return weatherData;
     }
 
 }
